@@ -5,12 +5,12 @@ def batteries_for_max_joltage(bank: str) -> int:
     n = len(bank)
     max_ = 1
     for i in range(n):
-        for j in range(n):
-            if i >= j:
-                continue
-            current = int(f"{bank[i]}{bank[j]}")
+        j = 0
+        while j < i:
+            current = int(f"{bank[j]}{bank[i]}")
             if current > max_:
                 max_ = current
+            j += 1
     return max_
 
 
