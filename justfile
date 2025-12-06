@@ -1,6 +1,6 @@
 test:
     uv run ruff check .
-    uv run basedpyright .
+    uv run pyright .
     uv run pytest
 
 start:
