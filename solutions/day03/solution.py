@@ -2,14 +2,11 @@ from pathlib import Path
 
 
 def batteries_for_max_joltage(bank: str) -> int:
-    n = len(bank)
     max_ = 1
-    for i in range(n):
+    for i in range(len(bank)):
         j = 0
         while j < i:
-            current = int(f"{bank[j]}{bank[i]}")
-            if current > max_:
-                max_ = current
+            max_ = current if (current := int(f"{bank[j]}{bank[i]}")) > max_ else max_
             j += 1
     return max_
 
