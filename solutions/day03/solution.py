@@ -4,6 +4,7 @@ from pathlib import Path
 def read_banks(path) -> list[str]:
     return [bank for bank in Path(path).read_text().strip().splitlines()]
 
+
 def max_from_left(bank: str, start: int, end: int) -> int:
     max_pos, max_ = start, int(bank[start])
     for i in range(start, end):
@@ -14,17 +15,15 @@ def max_from_left(bank: str, start: int, end: int) -> int:
 
 def max_joltage(bank: str, num_digits: int) -> int:
     digits, start = "", 0
-    for i in range(num_digits-1, -1, -1):
+    for i in range(num_digits - 1, -1, -1):
         start = max_from_left(bank, start, len(bank) - i)
         digits += bank[start]
         start += 1
     return int(digits)
-        
+
 
 def solve(banks: list[str], num_digits: int) -> int:
-    return sum(
-        max_joltage(bank, num_digits) for bank in banks
-    )
+    return sum(max_joltage(bank, num_digits) for bank in banks)
 
 
 def main() -> None:
