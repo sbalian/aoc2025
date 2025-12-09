@@ -1,38 +1,40 @@
 from pathlib import Path
 
 
-def max_from_left(bank: str) -> int:
-    max_pos, max_ = 0, int(bank[0])
-    for i in range(len(bank) - 1):
+def read_banks(path) -> list[str]:
+    return [bank for bank in Path(path).read_text().strip().splitlines()]
+
+def max_from_left(bank: str, start: int, end: int) -> int:
+    max_pos, max_ = start, int(bank[start])
+    for i in range(start, end):
         if (current := int(bank[i])) > max_:
             max_pos, max_ = i, current
     return max_pos
 
 
-def max_from_right(bank: str, end: int) -> int:
-    n = len(bank)
-    max_pos, max_ = n - 1, int(bank[n - 1])
-    for i in range(n - 1, end, -1):
-        if (current := int(bank[i])) > max_:
-            max_pos, max_ = i, current
-    return max_pos
+def max_joltage(bank: str, num_digits: int) -> int:
+    digits, start = "", 0
+    for i in range(num_digits-1, -1, -1):
+        start = max_from_left(bank, start, len(bank) - i)
+        digits += bank[start]
+        start += 1
+    return int(digits)
+        
 
-
-def max_joltage(bank: str) -> int:
-    left = max_from_left(bank)
-    right = max_from_right(bank, left)
-    return int(f"{bank[left]}{bank[right]}")
-
-
-def part1(path: str) -> int:
+def solve(banks: list[str], num_digits: int) -> int:
     return sum(
-        max_joltage(bank) for bank in Path(path).read_text().strip().splitlines()
+        max_joltage(bank, num_digits) for bank in banks
     )
 
 
 def main() -> None:
-    assert part1("example.txt") == 357
-    assert part1("input.txt") == 17087
+    banks = read_banks("example.txt")
+    assert solve(banks, 2) == 357
+    assert solve(banks, 12) == 3121910778619
+
+    banks = read_banks("input.txt")
+    assert solve(banks, 2) == 17087
+    assert solve(banks, 12) == 169019504359949
     print("All tests passed.")
 
 
