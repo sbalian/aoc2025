@@ -2,6 +2,8 @@ import re
 from math import prod
 from pathlib import Path
 
+# NOTE Make sure your IDE is configured to not trim the trailing whitespaces in
+# input.txt and example.txt
 
 def part1(path: str) -> int:
     lines = Path(path).read_text().strip().splitlines()
