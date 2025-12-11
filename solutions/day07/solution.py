@@ -49,7 +49,6 @@ def dfs_count_paths(
 ) -> int:
     stack = [(start, [start])]
     count = 0
-    visited = set()
     while stack:
         node, path = stack.pop()
         if node == end:
@@ -58,7 +57,6 @@ def dfs_count_paths(
         for neighbour in neighbours[node]:
             if neighbour not in path:
                 stack.append((neighbour, path + [neighbour]))
-                visited.add(neighbour)
     return count
 
 
