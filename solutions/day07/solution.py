@@ -70,7 +70,7 @@ def count_paths(
     for i, j in all_nodes:
         all_nodes_by_j[j].append((i, j))
     for j in all_nodes_by_j.keys():
-        all_nodes_by_j[j] = sorted(all_nodes_by_j[j], key=lambda x: x[0])
+        all_nodes_by_j[j].sort(key=lambda x: x[0])
     neighbours = dict[Point, list[Point]]()
     left, right = None, None
     for i, j in non_terminal_nodes:
