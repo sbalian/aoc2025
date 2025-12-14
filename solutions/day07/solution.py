@@ -13,28 +13,22 @@ class FinalSplitter(NamedTuple):
 
 class Manifold:
     def __init__(self, path: str):
-        self.values = [
-            list(line) for line in Path(path).read_text().strip().splitlines()
-        ]
-        self.height, self.width = len(self.values), len(self.values[0])
-        self.start = self.find_start()
+        self.rows = Path(path).read_text().strip().splitlines()
+        self.height = len(self.rows)
+        self.start = self.get_start()
         self.splitters = self.find_splitters()
         self.sources = self.find_sources()
         self.final_splitters = self.find_final_splitters()
 
-    def find_start(self) -> Point:
-        for i in range(self.height):
-            for j in range(self.width):
-                if self.values[i][j] == "S":
-                    return i, j
-        raise ValueError("start not found")
+    def get_start(self) -> Point:
+        return 0, len(self.rows[0]) // 2
 
     def find_splitters(self) -> list[Point]:
         return [
             (i, j)
-            for i in range(self.height)
-            for j in range(self.width)
-            if self.values[i][j] == "^"
+            for i in range(0, self.height, 2)
+            for j in range(len(self.rows[i]))
+            if self.rows[i][j] == "^"
         ]
 
     def find_sources(self) -> dict[Point, list[Point]]:
@@ -44,9 +38,9 @@ class Manifold:
             k = i - 1
             right_under_source = False
             while k >= 0:
-                if self.values[k][j] == ".":
+                if self.rows[k][j] == ".":
                     k -= 1
-                elif self.values[k][j] == "^":
+                elif self.rows[k][j] == "^":
                     break
                 else:  # S
                     sources[(i, j)].append((k, j))
@@ -55,9 +49,9 @@ class Manifold:
             if right_under_source:
                 continue
             for p in range(i - 1, k, -1):
-                if self.values[p][j + 1] == "^":
+                if self.rows[p][j + 1] == "^":
                     sources[(i, j)].append((p, j + 1))
-                if self.values[p][j - 1] == "^":
+                if self.rows[p][j - 1] == "^":
                     sources[(i, j)].append((p, j - 1))
         return dict(sources)
 
@@ -68,10 +62,10 @@ class Manifold:
         final_splitters = list[FinalSplitter]()
         for i, j in self.splitters:
             from_right, from_left = True, True
-            for k in range(i + 1, self.height):
-                if self.values[k][j + 1] == "^":
+            for k in range(i + 2, self.height, 2):
+                if self.rows[k][j + 1] == "^":
                     from_right = False
-                if self.values[k][j - 1] == "^":
+                if self.rows[k][j - 1] == "^":
                     from_left = False
                 if not from_right and not from_left:
                     break
