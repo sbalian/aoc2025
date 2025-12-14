@@ -1,17 +1,22 @@
 from collections import defaultdict
 from functools import cache
 from pathlib import Path
+from typing import Literal, NamedTuple
 
 Point = tuple[int, int]
 
 
-class Grid:
+class FinalSplitter(NamedTuple):
+    splitter: Point
+    multiplier: Literal[1, 2]
+
+
+class Manifold:
     def __init__(self, path: str):
         self.values = [
             list(line) for line in Path(path).read_text().strip().splitlines()
         ]
-        self.height = len(self.values)
-        self.width = len(self.values[0])
+        self.height, self.width = len(self.values), len(self.values[0])
         self.start = self.find_start()
         self.splitters = self.find_splitters()
         self.sources = self.find_sources()
@@ -56,38 +61,57 @@ class Grid:
                     sources[(i, j)].append((p, j - 1))
         return dict(sources)
 
-    @cache
     def splits(self, splitter: Point) -> bool:
-        if splitter not in self.sources:
-            return False
-        if self.sources[splitter] == [self.start]:
-            return True
-        return any(self.splits(splitter) for splitter in self.sources[splitter])
+        return splitter in self.sources
 
-    def find_final_splitters(self) -> list[Point]:
-        final_splitters = list[Point]()
-        for splitter in self.splitters:
-            final = True
-            i, j = splitter
+    def find_final_splitters(self) -> list[FinalSplitter]:
+        final_splitters = list[FinalSplitter]()
+        for i, j in self.splitters:
+            from_right, from_left = True, True
             for k in range(i + 1, self.height):
-                if self.values[k][j + 1] == "^" or self.values[k][j - 1] == "^":
-                    final = False
+                if self.values[k][j + 1] == "^":
+                    from_right = False
+                if self.values[k][j - 1] == "^":
+                    from_left = False
+                if not from_right and not from_left:
                     break
-            if final:
-                final_splitters.append(splitter)
+            if from_right or from_left:
+                multiplier = 1
+                if from_right and from_left:
+                    multiplier = 2
+                final_splitters.append(
+                    FinalSplitter(splitter=(i, j), multiplier=multiplier)
+                )
         return final_splitters
 
+    @cache
+    def paths(self, splitter: Point) -> int:
+        sources = self.sources.get(splitter, [])
+        if sources == [self.start]:
+            return 1
+        else:
+            return sum(self.paths(source) for source in sources)
 
-def part1(grid: Grid) -> int:
-    return sum(grid.splits(splitter) for splitter in grid.splitters)
+    @property
+    def num_splits(self) -> int:
+        return sum(self.splits(splitter) for splitter in self.splitters)
+
+    @property
+    def num_timelines(self) -> int:
+        return sum(
+            multiplier * self.paths(splitter)
+            for splitter, multiplier in self.final_splitters
+        )
 
 
 def main() -> None:
-    grid = Grid("example.txt")
-    assert part1(grid) == 21
+    manifold = Manifold("example.txt")
+    assert manifold.num_splits == 21
+    assert manifold.num_timelines == 40
 
-    grid = Grid("input.txt")
-    assert part1(grid) == 1566
+    manifold = Manifold("input.txt")
+    assert manifold.num_splits == 1566
+    assert manifold.num_timelines == 5921061943075
 
     print("All tests passed.")
 
