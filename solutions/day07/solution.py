@@ -48,7 +48,7 @@ class Manifold:
                     break
             if right_under_source:
                 continue
-            for p in range(i - 1, k, -1):
+            for p in range(i, k, -2):
                 if self.rows[p][j + 1] == "^":
                     sources[(i, j)].append((p, j + 1))
                 if self.rows[p][j - 1] == "^":
