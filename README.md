@@ -11,14 +11,14 @@ To start a new day:
 just good-morning
 ```
 
+To run all days in sequence:
+
+```bash
+just run
+```
+
 To run the solutions for a particular day (e.g., day 1):
 
 ```bash
 just run 01
 ```
-
-<!--To run all the solutions:
-
-```bash
-uv run merry_christmas.py
-```-->
